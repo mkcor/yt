@@ -25,8 +25,11 @@ from yt.data_objects.static_output import \
     Dataset
 from .fields import NetcdfFieldInfo
 
+
 class NetcdfGrid(AMRGridPatch):
+
     _id_offset = 0
+
     def __init__(self, id, index, level):
         AMRGridPatch.__init__(self, id, filename=index.index_filename,
                               index=index)
@@ -36,6 +39,7 @@ class NetcdfGrid(AMRGridPatch):
 
     def __repr__(self):
         return "NetcdfGrid_%04i (%s)" % (self.id, self.ActiveDimensions)
+
 
 class NetcdfHierarchy(GridIndex):
     grid = NetcdfGrid
@@ -84,6 +88,7 @@ class NetcdfHierarchy(GridIndex):
         # This is handled by the frontend because often the children must be
         # identified.
         pass
+
 
 class NetcdfDataset(Dataset):
     _index_class = NetcdfHierarchy
@@ -145,4 +150,15 @@ class NetcdfDataset(Dataset):
     def _is_valid(self, *args, **kwargs):
         # This accepts a filename or a set of arguments and returns True or
         # False depending on if the file is of the type requested.
+
+        filepath = args[0]
+
+        # netcdf datasets are self-describing files
+        if not os.path.isfile(filepath):
+            return False
+
+        filename = os.path.basename(filepath)
+
+        if filename.endswith('.nc'):
+            return True
         return False
